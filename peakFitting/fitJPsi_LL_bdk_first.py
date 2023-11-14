@@ -33,7 +33,7 @@ x_ROI_min=3.0
 
 # for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["He"]:
+for A in ["C"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
         def getXY(infiles,weights,histname, rebin):
