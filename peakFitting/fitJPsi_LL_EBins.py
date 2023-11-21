@@ -19,44 +19,47 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-A = "D"
-vers="v7"
-rebin=20
-directoryname=".SubThresh.Kin.Jpsi_mass"
+vers="v8"
+rebin=30
+rebinSubt=rebin
 histname="mass_pair"
-# mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
-fit_peak=[False, True, True]
+fit_peak=[True, True, True]
+
+
+def getXY(infiles, weights, histname, rebin,directoryname):
+    x = 0
+    y = 0
+    yerr = 0
+    for i, infile in enumerate(infiles):
+        f = root2mpl.File(infile, dir=directoryname)
+        h = f.get(histname, rebin=rebin)
+        x = h.x
+        y += h.y * weights[i]
+        yerr = np.sqrt(yerr ** 2 + (h.yerr * weights[i]) ** 2)
+    return x, y, yerr
+
+
+filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 
 # for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["D"]:
+for A in ["C"]:
     for vers in ["v8"]:
         plt.figure(figsize=(6, 10))
         # <editor-fold desc="Sub-Threshold">
 
         plt.subplot(3, 1, 1)
-        directoryname = ".SubThresh.Kin.Jpsi_mass"
+
         # <editor-fold desc="Get Data">
-        def getXY(infiles, weights, histname, rebin):
-            x = 0
-            y = 0
-            yerr = 0
-            for i, infile in enumerate(infiles):
-                f = root2mpl.File(infile, dir=directoryname)
-                h = f.get(histname, rebin=rebin)
-                x = h.x
-                y += h.y * weights[i]
-                yerr = np.sqrt(yerr ** 2 + (h.yerr * weights[i]) ** 2)
-            return x, y, yerr
-
-
-        filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 
         dataFiles = [f"data_hist_{A}.root"]
+        directoryname = ".SubThresh.Kin.Jpsi_mass"
+        if (A == "C" or A == "He") and fit_peak[0]:
+            rebinSubt=40
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=rebin)
+                                          weights=[1], histname=histname, rebin=rebinSubt,directoryname=directoryname)
         dx = x_data[1] - x_data[0]
 
 
@@ -100,7 +103,7 @@ for A in ["D"]:
 
             # <editor-fold desc="Unbinned Fit">
             x_data_fit, y_data_fit, yerr_data_fit = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                              weights=[1], histname=histname, rebin=1)
+                                              weights=[1], histname=histname, rebin=1,directoryname=directoryname)
             x_points = []
             w_points = []
             x_fit = []
@@ -178,25 +181,13 @@ for A in ["D"]:
 
         # <editor-fold desc="Above Threshold Lower">
         plt.subplot(3, 1, 2)
-        directoryname = ".AboveThresh_lower.Kin.Jpsi_mass"
+
 
         # <editor-fold desc="Get Data">
-        def getXY(infiles, weights, histname, rebin):
-            x = 0
-            y = 0
-            yerr = 0
-            for i, infile in enumerate(infiles):
-                f = root2mpl.File(infile, dir=directoryname)
-                h = f.get(histname, rebin=rebin)
-                x = h.x
-                y += h.y * weights[i]
-                yerr = np.sqrt(yerr ** 2 + (h.yerr * weights[i]) ** 2)
-            return x, y, yerr
-
-
+        directoryname = ".AboveThresh_lower.Kin.Jpsi_mass"
         dataFiles = [f"data_hist_{A}.root"]
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=rebin)
+                                          weights=[1], histname=histname, rebin=rebin,directoryname=directoryname)
         dx = x_data[1] - x_data[0]
 
 
@@ -239,7 +230,7 @@ for A in ["D"]:
 
         # <editor-fold desc="Unbinned Fit">
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=1)
+                                          weights=[1], histname=histname, rebin=1,directoryname=directoryname)
         x_points = []
         w_points = []
         x_fit = []
@@ -292,7 +283,7 @@ for A in ["D"]:
         sigma_err = np.sqrt(pcov[4][4])
 
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=rebin)
+                                          weights=[1], histname=histname, rebin=rebin,directoryname=directoryname)
 
         xlin = np.linspace(x_fit[0], x_fit[-1], num=1000)
         # plt.subplot(3,1,3)
@@ -318,25 +309,13 @@ for A in ["D"]:
 
         # <editor-fold desc="Above Threshold Upper">
         plt.subplot(3, 1, 3)
-        directoryname = ".AboveThresh_upper.Kin.Jpsi_mass"
+
 
         # <editor-fold desc="Get Data">
-        def getXY(infiles, weights, histname, rebin):
-            x = 0
-            y = 0
-            yerr = 0
-            for i, infile in enumerate(infiles):
-                f = root2mpl.File(infile, dir=directoryname)
-                h = f.get(histname, rebin=rebin)
-                x = h.x
-                y += h.y * weights[i]
-                yerr = np.sqrt(yerr ** 2 + (h.yerr * weights[i]) ** 2)
-            return x, y, yerr
-
-
+        directoryname = ".AboveThresh_upper.Kin.Jpsi_mass"
         dataFiles = [f"data_hist_{A}.root"]
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=rebin)
+                                          weights=[1], histname=histname, rebin=rebin,directoryname=directoryname)
         dx = x_data[1] - x_data[0]
 
 
@@ -379,7 +358,7 @@ for A in ["D"]:
 
         # <editor-fold desc="Unbinned Fit">
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=1)
+                                          weights=[1], histname=histname, rebin=1,directoryname=directoryname)
         x_points = []
         w_points = []
         x_fit = []
@@ -432,7 +411,7 @@ for A in ["D"]:
         sigma_err = np.sqrt(pcov[4][4])
 
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
-                                          weights=[1], histname=histname, rebin=rebin)
+                                          weights=[1], histname=histname, rebin=rebin,directoryname=directoryname)
 
         xlin = np.linspace(x_fit[0], x_fit[-1], num=1000)
         # plt.subplot(3,1,3)
@@ -455,8 +434,7 @@ for A in ["D"]:
         placeText(r"$E_\gamma > 9.5$ GeV", loc=2)
         # </editor-fold>
         # </editor-fold>
-
-        plt.savefig(f"figures/p2_preB03_Emiss1/mass_pair_EFits/Mee_EComp_{A}_noTrackShower_{vers}.pdf")
+        plt.savefig(f"../../files/figs/peakFits/3panel/Mee_{A}_3panel_noTrackShower_{vers}_bin{rebin}.pdf")
         plt.show()
 
 

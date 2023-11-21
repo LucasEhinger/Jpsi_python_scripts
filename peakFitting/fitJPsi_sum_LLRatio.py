@@ -163,14 +163,12 @@ xmin, xmax, ymin, ymax=plt.axis()
 plt.ylim(ymin,1.25*ymax)
 plt.ylim(ymin,20)
 plt.ylabel("Counts")
-plt.xlabel(r"$m(e^+e^-)$ [GeV]")
+plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 
 
 placeText(A+"\n"+r"$E_{\gamma}$<8.2",loc=2,yoffset=-40)
 placeText("No Extra Tracks/Showers"+"\n"+vers,loc=1,yoffset=-40)
 
-placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
-          +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
 # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
 # placeText("Unbinned Exp",loc=2)
 
@@ -179,11 +177,11 @@ placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{
 
 
 # </editor-fold>
-a1, A = popt_nosig
+a1, Aval = popt_nosig
 tmp = w_fit * np.log((a1 * np.exp(a1 * x_fit) / (np.exp(x_fit_max * a1) - np.exp(x_fit_min * a1))))
 nosig_sum = tmp.sum()
 
-a0, a1, A, mu, sigma = popt
+a0, a1, Aval, mu, sigma = popt
 tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, mu, sigma))
 sig_sum = tmp.sum()
 
@@ -193,5 +191,9 @@ alpha = stats.chi2.sf(fom, 3)
 z_score=stats.norm.ppf(1 - alpha / 2)
 print(f"Z Score: {z_score}")
 
-# plt.savefig(f"figures/p2_preB03_Emiss1/mass_pair_final/mass_pair_comp/Mee_comp_He+C_noExtraTrack_{vers}_bin{rebin}.pdf")
+placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{N_err:.1f}$"
+          +"\n"+rf"$\sigma={abs(sigma):.3f}\pm{sigma_err:.3f}$" +
+          "\n"+rf"$z={z_score:.2f}\sigma$")
+
+plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
 plt.show()

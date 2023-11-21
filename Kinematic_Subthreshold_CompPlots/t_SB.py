@@ -16,16 +16,16 @@ import os
 plt.style.use("SRC_CT_presentation")
 
 xmin=0
-xmax=1
-histname_ROI = "k_miss_ROI"
+xmax=5
+histname_ROI = "t_kin_minus_ROI"
 sub_directoryname_ROI=".Kin.ROI"
-histname_SB = "k_miss_SB"
+histname_SB = "t_kin_minus_SB"
 sub_directoryname_SB=".Kin.SB"
 vers="v8"
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 pTCut=False
 
-rebin=30
+rebin=20
 xoffset=0.03
 
 def getXY(infiles,weights,histname, rebin,directoryname):
@@ -89,16 +89,20 @@ else:
 placeText("He+C"+"\n"+r"$m(e^+e^-)$ Sideband",loc=2,yoffset=-40)
 placeText(r"$E_{\gamma}<8.2$ GeV",loc=1)
 
+# plt.axvspan(xmin, 1.2, facecolor='b', alpha=0.3)
+# plt.axvspan(1.2, xmax, facecolor='yellow', alpha=0.3)
 
 plt.subplot(2,1,2)
 plt.errorbar(x_ROI_thresh,y_ROI_thresh,yerr=yerr_ROI_thresh,fmt='.k',capsize=0)
 plt.errorbar(x_SB_thresh+xoffset,y_SB_thresh,yerr=yerr_SB_thresh,fmt='.r',capsize=0)
 plt.ylabel("Counts")
-plt.xlabel(r"$k_{miss}$ [GeV]")
+plt.xlabel(r"$-t$ [GeV]")
 plt.xlim(xmin,xmax)
 xmin,xmax,ymin,ymax=plt.axis()
 plt.ylim(ymin,ymax*1.3)
 
+# plt.axvspan(xmin, 1.2, facecolor='b', alpha=0.3)
+# plt.axvspan(1.2, xmax, facecolor='yellow', alpha=0.3)
 
-plt.savefig(f"../../files/figs/kin/subthreshold_comp/k_miss/k_miss_SB_{vers}_{'pT03_' if pTCut else ''}mixed.pdf")
+plt.savefig(f"../../files/figs/kin/subthreshold_comp/t/t_SB_{vers}_{'pT03_' if pTCut else ''}mixed.pdf")
 plt.show()

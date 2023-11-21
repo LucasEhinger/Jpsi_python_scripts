@@ -17,19 +17,17 @@ plt.style.use("SRC_CT_presentation")
 
 xmin=0.5
 xmax=2
-# histname = "alpha_miss_SB_lower"
 histname = "alpha_miss_ROI"
-directoryname=".ROI"
-pTCut="0p3"
-tracks="noTracks"
-version="v7"
+sub_directoryname=".Kin.ROI"
+vers="v8"
+pTCut=False
 
-Egamma_subt="8p2"
-Egamma_thresh="8p2"
-rebin_data=2
-rebin_sim=1
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+
+rebin_data=20
+rebin_sim=10
 xoffset=0.01
-def getXY(infiles,weights,histname, rebin):
+def getXY(infiles,weights,histname, rebin,directoryname):
     x=0
     y=0
     yerr=0
@@ -67,23 +65,24 @@ simWeights=[0.366,0.069,1.13,0.29] #Not including 2H (0.242 nb)
 dataFiles=["data_hist_He.root", "data_hist_C.root"]
 simFiles=["hist_DSelector_4He_MF_helicity_mixed.root", "hist_DSelector_4He_SRC_helicity_mixed.root", "hist_DSelector_12C_MF_helicity_mixed.root", "hist_DSelector_12C_SRC_helicity_mixed.root"]
 
-filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{version}/PoverE/m3_p2_sigma/{tracks}/preB_03/Emiss_1/EgammaCuts/{Egamma_subt}_lower/"
-if pTCut!="":
-    filepath+="/pTCuts/"+pTCut+"_lower/"
-x_data_subt,y_data_subt,yerr_data_subt=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin_data)
 
-x_sim_subt,y_sim_subt,yerr_sim_subt=getXY(infiles=[filepath+tree for tree in simFiles],
-                              weights=simWeights,histname=histname,rebin=rebin_sim)
+directoryname=".SubThresh"+sub_directoryname
+if pTCut:
+    directoryname=".SubThresh_pt03_lower"+sub_directoryname
+x_data_subt,y_data_subt,yerr_data_subt= getXY(infiles=[filepath + tree for tree in dataFiles], weights=[1, 1],
+                                              histname=histname, rebin=rebin_data, directoryname=directoryname)
 
-filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{version}/PoverE/m3_p2_sigma/{tracks}/preB_03/Emiss_1/EgammaCuts/{Egamma_subt}_upper/"
-if pTCut!="":
-    filepath+="/pTCuts/"+pTCut+"_lower/"
-x_data_thresh,y_data_thresh,yerr_data_thresh=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin_data)
+x_sim_subt,y_sim_subt,yerr_sim_subt= getXY(infiles=[filepath + tree for tree in simFiles], weights=simWeights,
+                                           histname=histname, rebin=rebin_sim, directoryname=directoryname)
 
-x_sim_thresh,y_sim_thresh,yerr_sim_thresh=getXY(infiles=[filepath+tree for tree in simFiles],
-                              weights=simWeights,histname=histname,rebin=rebin_sim)
+directoryname=".AboveThresh"+sub_directoryname
+if pTCut:
+    directoryname=".AboveThresh_pt03_lower"+sub_directoryname
+x_data_thresh,y_data_thresh,yerr_data_thresh= getXY(infiles=[filepath + tree for tree in dataFiles], weights=[1, 1],
+                                                    histname=histname, rebin=rebin_data, directoryname=directoryname)
+
+x_sim_thresh,y_sim_thresh,yerr_sim_thresh= getXY(infiles=[filepath + tree for tree in simFiles], weights=simWeights,
+                                                 histname=histname, rebin=rebin_sim, directoryname=directoryname)
 # </editor-fold>
 
 
@@ -135,17 +134,19 @@ plt.ylabel("Counts")
 plt.xlim(xmin,xmax)
 xmin,xmax,ymin,ymax=plt.axis()
 plt.ylim(ymin,ymax*1.3)
-if tracks=="noTracks":
-    placeText("No Sideband Sub."+"\n"+"Mixed"+"\n"+version+" No Extra Tracks",loc=2,yoffset=-60)
-else:
-    placeText("No Sideband Sub." + "\n" + "Mixed" + "\n" + version + " Incl. Extra Tracks", loc=2, yoffset=-60)
+# if tracks=="noTracks":
+#     placeText("No Sideband Sub."+"\n"+"Mixed"+"\n"+version+" No Extra Tracks",loc=2,yoffset=-60)
+# else:
+#     placeText("No Sideband Sub." + "\n" + "Mixed" + "\n" + version + " Incl. Extra Tracks", loc=2, yoffset=-60)
 
-if pTCut=="":
-    placeText(r"$3<m(e^+e^-)<3.2$",loc=1,yoffset=-25)
+if pTCut:
+    placeText("No Extra Tracks/Showers" + "\n" + vers +"\n"+r"  $p_T<0.3$ ", loc=1, yoffset=-60)
 else:
-    placeText(r"$3<m(e^+e^-)<3.2$"
-          +"\n"+r"$p_T<$"+pTCut.replace("p","."),loc=1,yoffset=-45)
-placeText(r"$E_{\gamma}<$"+Egamma_subt.replace("p",".") + " GeV",loc=1)
+    placeText("No Extra Tracks/Showers" + "\n" + vers, loc=1, yoffset=-40)
+
+
+placeText("He+C"+"\n"+r"3<$m(e^+e^-)$<3.2",loc=2,yoffset=-40)
+placeText(r"$E_{\gamma}<8.2$ GeV",loc=1)
 placeText(r"$\mu_{data}"+rf"={mu_data_subt:.2f}\pm{mu_err_data_subt:.2f}$" +"\n"
           +r"$\mu_{sim}"+rf"={mu_sim_subt:.2f}\pm{mu_err_sim_subt:.2f}$",loc=2)
 # plt.axvspan(xmin, 1.2, facecolor='b', alpha=0.3)
@@ -165,13 +166,12 @@ plt.xlabel(r"$\alpha_{miss}$ [GeV]")
 plt.xlim(xmin,xmax)
 xmin,xmax,ymin,ymax=plt.axis()
 plt.ylim(ymin,ymax*1.3)
-placeText(r"$E_{\gamma}>$"+Egamma_thresh.replace("p",".")+" GeV",loc=1)
+placeText(r"$E_{\gamma}<8.2$ GeV",loc=1)
 placeText(r"$\mu_{data}"+rf"={mu_data_thresh:.2f}\pm{mu_err_data_thresh:.2f}$" +"\n"
           +r"$\mu_{sim}"+rf"={mu_sim_thresh:.2f}\pm{mu_err_sim_thresh:.2f}$",loc=2)
 # plt.axvspan(xmin, 1.2, facecolor='b', alpha=0.3)
 # plt.axvspan(1.2, xmax, facecolor='yellow', alpha=0.3)
 
-plt.savefig(f"../figures/p2_preB03_Emiss1/subthreshold/alpha_miss/alpha_miss_ROI_fitted_{version}_pT{pTCut}_{tracks}_mixed.pdf")
-plt.show()
+plt.savefig(f"../../files/figs/kin/subthreshold_comp/alpha_miss/alpha_miss_ROI_fitted_{vers}_{'pT03_' if pTCut else ''}mixed.pdf")
 
-print(f"Scale difference: {scaleFactor_subt/scaleFactor_thresh: .3f}")
+plt.show()

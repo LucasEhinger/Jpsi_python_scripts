@@ -28,6 +28,7 @@ histname="mass_pair"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
+mu_fixed=3.096
 
 for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
@@ -107,7 +108,8 @@ for A in ["D","He","C"]:
             return pdf_val
 
         def minus_log_likelihood(params):
-            a0,a1,A,mu,sigma= params
+            mu=mu_fixed
+            a0,a1,A,sigma= params
             A=abs(A)
             a0=abs(a0)
             tmp=w_fit*np.log(A*gaus_exp_bdk_pdf(x_fit,a0,a1,mu,sigma))
@@ -118,7 +120,7 @@ for A in ["D","He","C"]:
 
 
         # initial_guess = [1/N,-4,40,3.08,0.04]
-        initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,3.1,0.04]
+        initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,0.04]
         # initial_guess=[ 9.68114430e-01, -5.06355476e+00,  9.40306056e+01,  3.04613395e+00, 5.00839801e-02]
         result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
@@ -129,19 +131,17 @@ for A in ["D","He","C"]:
 
 
         N = popt[2]/(1+popt[0])
-        mu = popt[3]
-        sigma = abs(popt[4])
+        sigma = abs(popt[3])
 
         N_err = (np.sqrt(pcov[2][2])/popt[2]+np.sqrt(pcov[0][0])/(1+popt[0]))*N
-        mu_err = np.sqrt(pcov[3][3])
-        sigma_err = np.sqrt(pcov[4][4])
+        sigma_err = np.sqrt(pcov[3][3])
 
         x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                                       weights=[1],histname=histname,rebin=rebin)
 
         xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
         # plt.subplot(3,1,3)
-        plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
+        plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],mu_fixed,popt[3]))*dx,color='r')
         plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 
         plt.xlim(2.2,3.4)
@@ -153,13 +153,13 @@ for A in ["D","He","C"]:
         placeText("No Extra Tracks/Showers," + vers+"\n"+r"$E_{\gamma}$>8.2 GeV", loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
         placeText(A, loc=2, yoffset=-30, fontsize=18)
 
-        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
+        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu_fixed:.3f}$"
                   +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
         # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
         placeText("Unbinned",loc=2)
         # </editor-fold>
 
-        plt.savefig(f"../../files/figs/peakFits/unbinned/AboveThresh/Mee_{A}_AboveThresh_noTrackShower_{vers}_bin{rebin}.pdf")
+        plt.savefig(f"../../files/figs/peakFits/unbinned/fixed_mu/Mee_{A}_fixed_mu_noTrackShower_{vers}_bin{rebin}.pdf")
         plt.show()
 
 

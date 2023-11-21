@@ -153,7 +153,7 @@ xmin, xmax, ymin, ymax=plt.axis()
 plt.ylim(ymin,1.25*ymax)
 plt.ylim(ymin,20)
 plt.ylabel("Counts")
-plt.xlabel(r"$m(e^+e^-)$ [GeV]")
+plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 
 
 placeText(A+"\n"+r"$E_{\gamma}$<8.2",loc=2,yoffset=-40)
@@ -167,11 +167,11 @@ placeText("No Extra Tracks/Showers"+"\n"+vers,loc=1,yoffset=-40)
 
 
 # </editor-fold>
-a1, A = popt_nosig
+a1, Aval = popt_nosig
 tmp = w_fit * np.log((a1 * np.exp(a1 * x_fit) / (np.exp(x_fit_max * a1) - np.exp(x_fit_min * a1))))
 nosig_sum = tmp.sum()
 
-a0, a1, A, sigma = popt
+a0, a1, Aval, sigma = popt
 tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, sigma))
 sig_sum = tmp.sum()
 
@@ -182,8 +182,8 @@ z_score=stats.norm.ppf(1 - alpha / 2)
 print(f"Z Score: {z_score}")
 
 placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu_fixed:.3f}$"
-          +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$" +
+          +"\n"+rf"$\sigma={abs(sigma):.3f}\pm{sigma_err:.3f}$" +
           "\n"+rf"$z={z_score:.2f}\sigma$")
 
-# plt.savefig(f"figures/p2_preB03_Emiss1/mass_pair_final/mass_pair_comp/Mee_comp_He+C_noExtraTrack_{vers}_bin{rebin}.pdf")
+plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_mu{mu_fixed}_noTrackShower_{vers}_bin{rebin}.pdf")
 plt.show()

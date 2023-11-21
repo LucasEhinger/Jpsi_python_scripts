@@ -21,7 +21,7 @@ plt.style.use("SRC_CT_presentation")
 
 A = "D"
 vers="v7"
-rebin=35
+rebin=30
 # directoryname=".SubThresh.Kin.Jpsi_mass"
 directoryname=".All.Kin.Jpsi_mass"
 histname="mass_pair"
@@ -29,31 +29,32 @@ histname="mass_pair"
 x_fit_min=2.6
 x_fit_max=3.3
 
-# for A in ["D","He","C"]:
+for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["C"]:
-    for zVert_num in range(1,9):
+# for A in ["C"]:
+    for zVert_num in range(1,9,4):
         for vers in ["v8"]:
             # <editor-fold desc="Get Data">
-            def getXY(infiles,weights,histname, rebin):
+            def getXY(infiles,weights,histname, rebin,directorynames):
                 x=0
                 y=0
                 yerr=0
                 for i, infile in enumerate(infiles):
-                    f = root2mpl.File(infile,dir=directoryname)
-                    h = f.get(histname, rebin=rebin)
-                    x = h.x
-                    y += h.y*weights[i]
-                    yerr = np.sqrt(yerr**2 +(h.yerr*weights[i])**2)
+                    for directoryname in directorynames:
+                        f = root2mpl.File(infile,dir=directoryname)
+                        h = f.get(histname, rebin=rebin)
+                        x = h.x
+                        y += h.y*weights[i]
+                        yerr = np.sqrt(yerr**2 +(h.yerr*weights[i])**2)
                 return x,y,yerr
 
             filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 
             dataFiles=[f"data_hist_zComp_{A}.root"]
-            directoryname = f".All_z_vertex_foil_{zVert_num}.Kin.Jpsi_mass"
+            directorynames = [f".All_z_vertex_foil_{zVert_num}.Kin.Jpsi_mass",f".All_z_vertex_foil_{zVert_num+1}.Kin.Jpsi_mass",f".All_z_vertex_foil_{zVert_num+2}.Kin.Jpsi_mass",f".All_z_vertex_foil_{zVert_num+3}.Kin.Jpsi_mass"]
             # directoryname = f".All_z_vertex_{zVert_num}.Kin.Jpsi_mass"
             x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                                          weights=[1],histname=histname,rebin=rebin)
+                                          weights=[1],histname=histname,rebin=rebin,directorynames=directorynames)
             dx = x_data[1]-x_data[0]
 
             def gaus_bdk_exp(x,a0,a1,A,mu, sigma):
@@ -91,7 +92,7 @@ for A in ["C"]:
 
             # <editor-fold desc="Unbinned Fit">
             x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                                          weights=[1],histname=histname,rebin=1)
+                                          weights=[1],histname=histname,rebin=1,directorynames=directorynames)
             x_points=[]
             w_points=[]
             x_fit=[]
@@ -121,7 +122,7 @@ for A in ["C"]:
 
 
             # initial_guess = [1/N,-4,40,3.08,0.04]
-            initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,3.1,0.04]
+            initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,3.5,0.04]
             # initial_guess=[ 9.68114430e-01, -5.06355476e+00,  9.40306056e+01,  3.04613395e+00, 5.00839801e-02]
             try:
                 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
@@ -142,32 +143,33 @@ for A in ["C"]:
                 xlin = np.linspace(x_fit[0], x_fit[-1], num=1000)
                 # plt.subplot(3,1,3)
                 plt.plot(xlin, (popt[2] * gaus_exp_bdk_pdf(xlin, *popt[0:2], *popt[3:5])) * dx, color='r')
-                placeText(r"$N_{J/\psi}$" + rf"$={N:.1f}\pm$" + f"{N_err:.1f}" + "\n" + rf"$\mu={mu:.3f}\pm$" + f"{mu_err:.3f}" + "\n" + rf"$\sigma={sigma:.3f}\pm$" + f"{sigma_err:.3f}")
+                placeText(r"$N_{J/\psi}$" + rf"$={N:.1f}\pm$" + f"${N_err:.1f}$" + "\n" + rf"$\mu={mu:.3f}\pm$" + f"${mu_err:.3f}$" + "\n" + rf"$\sigma={sigma:.3f}\pm$" + f"${sigma_err:.3f}$")
             except RuntimeError:
                 print("Error")
 
             x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                                          weights=[1],histname=histname,rebin=rebin)
+                                          weights=[1],histname=histname,rebin=rebin,directorynames=directorynames)
 
             plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 
             plt.xlim(2.2,3.4)
             xmin, xmax, ymin, ymax=plt.axis()
-            plt.ylim(ymin,ymax)
+            plt.ylim(ymin,ymax*0.9)
             plt.ylabel("Counts")
-            plt.xlabel(r"$m(e^+e^-)$ True [GeV]")
+            plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 
             placeText("No Extra Tracks/Showers" + "\n" + vers, loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
             placeText(A, loc=2, yoffset=-30, fontsize=18)
 
 
             # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
-            placeText(f"z Foil {zVert_num}",loc=2)
+            placeText(f"Foil {zVert_num} - {zVert_num+3}",loc=2)
             # placeText(f"z Region {zVert_num}", loc=2)
             # </editor-fold>
 
-            plt.savefig(f"figures/p2_preB03_Emiss1/mass_pair_final/UnBinned/zVert/Mee_{A}_zVert_Foil_{zVert_num}_noTrackShower_{vers}_bin{rebin}.pdf")
+            plt.savefig(f"../../files/figs/peakFits/zVertex/foils/Mee_{A}_zVert_Foil_{zVert_num}_{zVert_num+3}_noTrackShower_{vers}_bin{rebin}.pdf")
             plt.show()
-
+            print(N)
+            print(N_err)
 
 
