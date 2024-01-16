@@ -20,18 +20,18 @@ import os
 plt.style.use("SRC_CT_presentation")
 
 A = "D"
-vers="v7"
 rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
-directoryname=".AboveThresh.Kin.Jpsi_mass"
+directoryname=".All.Kin.Jpsi_mass"
 histname="mass_pair"
+# histname="mass_kin"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
 
 for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-# for A in ["He"]:
+# for A in ["D"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
         def getXY(infiles,weights,histname, rebin):
@@ -47,7 +47,10 @@ for A in ["D","He","C"]:
             return x,y,yerr
 
         filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
-
+        # filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/cutVary/"
+        # directoryname = ".preBmin_sigmamin_min_Emissmin.Jpsi_mass"
+        # dataFiles = [f"data_tree_{A}.root"]
+        #
         dataFiles=[f"data_hist_{A}.root"]
         x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                                       weights=[1],histname=histname,rebin=rebin)
@@ -148,9 +151,10 @@ for A in ["D","He","C"]:
         xmin, xmax, ymin, ymax=plt.axis()
         plt.ylim(ymin,ymax)
         plt.ylabel("Counts")
-        plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
+        # plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
+        plt.xlabel(r"True m($e^+e^-$) [GeV]")
 
-        placeText("No Extra Tracks/Showers," + vers+"\n"+r"$E_{\gamma}$>8.2 GeV", loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
+        placeText("No Extra Tracks/Showers" +"\n"+vers, loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
         placeText(A, loc=2, yoffset=-30, fontsize=18)
 
         placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
@@ -159,7 +163,7 @@ for A in ["D","He","C"]:
         placeText("Unbinned",loc=2)
         # </editor-fold>
 
-        plt.savefig(f"../../files/figs/peakFits/unbinned/AboveThresh/Mee_{A}_AboveThresh_noTrackShower_{vers}_bin{rebin}.pdf")
+        # plt.savefig(f"../../files/figs/peakFits/unbinned/True/Mee_{A}_True_noTrackShower_{vers}_bin{rebin}.pdf")
         plt.show()
 
 

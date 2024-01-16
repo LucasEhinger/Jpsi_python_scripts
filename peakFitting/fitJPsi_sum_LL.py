@@ -21,7 +21,7 @@ plt.style.use("SRC_CT_presentation")
 
 A = "He+C"
 vers="v8"
-rebin=20
+rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
 histname="mass_pair"
 x_fit_min=2.6

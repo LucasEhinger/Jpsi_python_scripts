@@ -20,7 +20,7 @@ import os
 plt.style.use("SRC_CT_presentation")
 
 vers="v8"
-rebin=30
+rebin=20
 rebinSubt=rebin
 histname="mass_pair"
 x_fit_min=2.6
@@ -57,7 +57,7 @@ for A in ["C"]:
         dataFiles = [f"data_hist_{A}.root"]
         directoryname = ".SubThresh.Kin.Jpsi_mass"
         if (A == "C" or A == "He") and fit_peak[0]:
-            rebinSubt=40
+            rebinSubt=rebin
         x_data, y_data, yerr_data = getXY(infiles=[filepath + tree for tree in dataFiles],
                                           weights=[1], histname=histname, rebin=rebinSubt,directoryname=directoryname)
         dx = x_data[1] - x_data[0]
@@ -74,8 +74,6 @@ for A in ["C"]:
                                         epsrel=0.01)
                 df.append(df_val[0])
             return df
-
-
         # </editor-fold>
 
         if fit_peak[0]:

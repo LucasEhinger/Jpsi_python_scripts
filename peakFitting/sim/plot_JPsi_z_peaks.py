@@ -43,7 +43,7 @@ plt.xticks([1.5,5.5],["1 - 4","5 -8"])
 plt.xlabel('z-location ("foil")')
 placeText("Data",loc=1,yoffset=-22)
 plt.ylabel("Normalized yield")
-plt.savefig(f"../../../files/figs/peakFits/zVertex/foils/sim/sim_yield_comparison_zVertex_2peaks.pdf")
+# plt.savefig(f"../../../files/figs/peakFits/zVertex/foils/sim/sim_yield_comparison_zVertex_2peaks.pdf")
 plt.show()
 
 #

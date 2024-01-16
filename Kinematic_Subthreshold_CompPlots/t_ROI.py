@@ -109,7 +109,7 @@ plt.errorbar(x_sim_thresh,y_sim_thresh,yerr=yerr_sim_thresh,fmt='.b',capsize=0)
 
 
 plt.ylabel("Counts")
-plt.xlabel(r"$-t$ [GeV]")
+plt.xlabel(r"$-t$ [GeV$^2$]")
 plt.xlim(xmin,xmax)
 xmin,xmax,ymin,ymax=plt.axis()
 plt.ylim(ymin,ymax*1.3)

@@ -33,7 +33,7 @@ x_ROI_min=2.9
 
 # for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["D"]:
+for A in ["He"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
         def getXY(infiles,weights,histname, rebin):
@@ -222,7 +222,7 @@ for A in ["D"]:
         placeText("Unbinned",loc=2)
         # </editor-fold>
 
-        # plt.savefig(f"../../files/figs/peakFits/bkd_sub/Mee_{A}_noTrackShower_bkdFirst_sub_{vers}_bin{rebin}.pdf")
+        # plt.savefig(f"../../files/figs/peakFits/bkd_sub/Mee_{A}_noTrackShower_bkdFirst_sub_wide_{vers}_bin{rebin}.pdf")
         print(rf"{A} a1= {a1_fit:.3f}   {a1_fit_err:.3f}")
         plt.show()
 
