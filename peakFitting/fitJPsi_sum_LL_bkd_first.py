@@ -147,7 +147,7 @@ N = popt[1]/(1+popt[0])
 mu = popt[2]
 sigma = abs(popt[3])
 
-N_err = (np.sqrt(pcov[1][1])/popt[1]+np.sqrt(pcov[0][0])/(1+popt[0]))*N
+N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
 mu_err = np.sqrt(pcov[2][2])
 sigma_err = np.sqrt(pcov[3][3])
 

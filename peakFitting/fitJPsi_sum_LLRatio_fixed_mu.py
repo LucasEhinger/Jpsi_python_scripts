@@ -132,7 +132,7 @@ pcov = lin.inv(hessian_(popt))
 N = popt[2]/(1+popt[0])
 sigma = abs(popt[3])
 
-N_err = (np.sqrt(pcov[2][2])/popt[2]+np.sqrt(pcov[0][0])/(1+popt[0]))*N
+N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
 sigma_err = np.sqrt(pcov[3][3])
 
 # Fit no signal
