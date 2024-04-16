@@ -21,7 +21,7 @@ plt.style.use("SRC_CT_presentation")
 
 A = "He+C"
 vers="v8"
-rebin=30
+rebin=20
 directoryname=".SubThresh.Kin.Jpsi_mass"
 histname="mass_pair"
 x_fit_min=2.6
@@ -43,8 +43,10 @@ def getXY(infiles,weights,histname, rebin):
 
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
+weightarr = [1,1]
+# dataFiles = ["data_hist_C.root"]
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin)
+                              weights=weightarr,histname=histname,rebin=rebin)
 dx = x_data[1]-x_data[0]
 
 def gaus_bdk_exp(x,a0,a1,A,mu, sigma):
@@ -59,7 +61,7 @@ def integrated_gaus_bkd_exp(x,a0,a1,A,mu,sigma):
 # </editor-fold>
 
 
-# <editor-fold desc="Binned Exp">
+# <editor-fold desc="Binned Fit">
 first = int((x_fit_min-x_data[0])/(x_data[-1]-x_data[0])*len(x_data))
 last = int((x_fit_max-x_data[0])/(x_data[-1]-x_data[0])*len(x_data))
 x = x_data[first:last]
@@ -85,7 +87,7 @@ sigma = popt[4]
 
 # <editor-fold desc="Unbinned Fit">
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=1)
+                              weights=weightarr,histname=histname,rebin=1)
 x_points=[]
 w_points=[]
 x_fit=[]
@@ -109,9 +111,6 @@ def minus_log_likelihood(params):
     a0=abs(a0)
     tmp=w_fit*np.log(A*gaus_exp_bdk_pdf(x_fit,a0,a1,mu,sigma))
     return A-tmp.sum()
-    # return -(np.sum(np.log((S*gaus(N,mu,sigma)+B*np.ones(len(N))))))+S+B # Here "A" is the total integral of the distribution funciton, whatever that may be
-    #return -np.sum(np.log(gaus(m,A,mu,sigma))) + A
-    # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
 
 
 # initial_guess = [1/N,-4,40,3.08,0.04]
@@ -120,7 +119,7 @@ initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(pop
 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
 popt = result.x
-# pcov = result.hess_inv
+# pcov = result.hess_inv //bfgs hessian was unstable (known problem)
 hessian_ = hessian(minus_log_likelihood)
 pcov = lin.inv(hessian_(popt))
 
@@ -129,12 +128,15 @@ N = popt[2]/(1+popt[0])
 mu = popt[3]
 sigma = abs(popt[4])
 
-N_err = (np.sqrt(pcov[2][2])/popt[2]+np.sqrt(pcov[0][0])/(1+popt[0]))*N
+N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
+# N_err = (np.sqrt(pcov[2][2])/popt[2]+np.sqrt(pcov[0][0])/(1+popt[0]))*N //old formula--wrong
 mu_err = np.sqrt(pcov[3][3])
 sigma_err = np.sqrt(pcov[4][4])
+# </editor-fold>z
+
 
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin)
+                              weights=weightarr,histname=histname,rebin=rebin)
 
 xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
 # plt.subplot(3,1,3)
@@ -154,8 +156,8 @@ placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{
           +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
 # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
 # placeText("Unbinned Exp",loc=2)
-# </editor-fold>
 
-plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+
+# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_subt_noTrackShower_{vers}_bin{rebin}.pdf")
 
 plt.show()

@@ -15,11 +15,14 @@ from scipy.optimize import curve_fit
 import os
 plt.style.use("SRC_CT_presentation")
 
-A = "C"
-filepath="/Users/lucasehinger/CLionProjects/untitled/Files/JPsi2/files/PoverE_Fitting/preB_03/noCalCuts/"
+A = "He"
+vers="v8"
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+directoryname=".PoverEPlots.Before"
+histname = "cal_PoverE_2D"
 
-f = root2mpl.File(filepath+f"data_hist_{A}.root")
-
+# f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
+f = root2mpl.File(filepath+f"hist2_cutflow_DSelector_4He_MF_helicity_mixed.root",dir=directoryname)
 
 rebinx=3
 rebiny=3
@@ -31,8 +34,6 @@ sig_min_bcal=0.8123
 sig_max_bcal=1.1729
 
 
-histname = "Cal_PoverE"
-# histname = "PoverE_2D_3_inf"
 
 plt.figure()
 plt.gca().set_aspect('equal')
@@ -47,13 +48,11 @@ plt.xlim(0.6,1.4)
 plt.ylim(0.6,1.4)
 plt.xlabel(r"FCAL p/E")
 plt.ylabel(r"BCAL p/E")
-# plt.title(rf"{A} Data")
+# plt.title(rf"{A} Sim")
 
 
 # placeText(A,loc=2,yoffset=-23)
 
-# plt.savefig(f"noSubtractionOrigCuts/figures/{A}_cut_noBackgroundSubtraction.png",dpi=1000)
+# plt.savefig(f"../../files/figs/cuts/PoverE_2D_sim_{A}.pdf", bbox_inches = 'tight')
 
-
-plt.savefig(f"figures/pOverE/PoverE_2D_data_{A}.pdf", bbox_inches = 'tight')
 plt.show()

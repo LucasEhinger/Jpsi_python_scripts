@@ -16,14 +16,12 @@ import os
 plt.style.use("SRC_CT_presentation")
 
 xmin=0
-xmax=80
-histname = "theta_p"
-directoryname=".Proton.Proton_ROI"
-pTCut=""
-tracks="noTracks"
-version="v7"
+xmax=10
+histname = "jpsi_theta"
+directoryname=".All.jpsi.ROI"
+vers="v8"
 
-rebin_data=20
+rebin_data=5
 rebin_sim=2
 xoffset=0.01
 def getXY(infiles,weights,histname, rebin):
@@ -40,12 +38,11 @@ def getXY(infiles,weights,histname, rebin):
 
 # <editor-fold desc="Get Data">
 simWeights=[0.242,0.366,0.069,1.13,0.29]
-dataFiles=["data_hist_D.root","data_hist_He.root", "data_hist_C.root"]
+dataFiles=["data_hist2_D.root","data_hist2_He.root", "data_hist2_C.root"]
 simFiles=["hist_DSelector_2H_MF_helicity_mixed.root","hist_DSelector_4He_MF_helicity_mixed.root", "hist_DSelector_4He_SRC_helicity_mixed.root", "hist_DSelector_12C_MF_helicity_mixed.root", "hist_DSelector_12C_SRC_helicity_mixed.root"]
 
-filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{version}/PoverE/m3_p2_sigma/{tracks}/preB_03/Emiss_1/"
-if pTCut!="":
-    filepath+="/pTCuts/"+pTCut+"_lower/"
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+
 x_data_D,y_data_D,yerr_data_D=getXY(infiles=[filepath+tree for tree in [dataFiles[0]]],
                               weights=[1],histname=histname,rebin=rebin_data)
 
@@ -63,7 +60,6 @@ x_data_C,y_data_C,yerr_data_C=getXY(infiles=[filepath+tree for tree in [dataFile
 
 x_sim_C,y_sim_C,yerr_sim_C=getXY(infiles=[filepath+tree for tree in simFiles[3:5]],
                               weights=simWeights[3:5],histname=histname,rebin=rebin_sim)
-
 
 # </editor-fold>
 
@@ -99,16 +95,11 @@ plt.ylabel("Counts")
 plt.xlim(xmin,xmax)
 xmin,xmax,ymin,ymax=plt.axis()
 plt.ylim(ymin,ymax*1.3)
-if tracks=="noTracks":
-    placeText("No Sideband Sub."+"\n"+"Mixed"+"\n"+version+" No Extra Tracks",loc=2,yoffset=-60)
-else:
-    placeText("No Sideband Sub." + "\n" + "Mixed" + "\n" + version + " Incl. Extra Tracks", loc=2, yoffset=-60)
 
-if pTCut=="":
-    placeText(r"$3<m(e^+e^-)<3.2$",loc=1,yoffset=-25)
-else:
-    placeText(r"$3<m(e^+e^-)<3.2$"
-          +"\n"+r"$p_T<$"+pTCut.replace("p","."),loc=1,yoffset=-45)
+placeText("No Sideband Sub." + "\n" + "Mixed" + "\n" + vers + " Incl. Extra Tracks", loc=2, yoffset=-60)
+
+
+placeText(r"$3<m(e^+e^-)<3.2$",loc=1,yoffset=-25)
 # placeText(r"$E_{\gamma}<$"+Egamma_subt.replace("p",".") + " GeV",loc=1)
 
 placeText("D",loc=1)

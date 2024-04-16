@@ -19,28 +19,50 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-cut ="ptAlphaCut"
-cut ="All"
+cut = "alphaCut"
+cut ="betagammaCut"
+# cut ="Egamma"
+# cut ="alphaCut"
+# cut="tCut"
+# cut="tCut_lc"
+# cut ="All"
 
 A = "D"
 rebin=30
 # directoryname=".SubThresh.Kin.Jpsi_mass"
 directoryname=".All.Kin.Jpsi_mass"
-if cut=="ptCut":
-    directoryname=".All_pt03_lower.Kin.Jpsi_mass"
-if cut=="alphaCut":
-    directoryname=".All_alpha1p2_lower.Kin.Jpsi_mass"
-if cut=="ptAlphaCut":
-    directoryname=".All_pt_alpha.Kin.Jpsi_mass"
+upper=True
 
-# histname="mass_pair"
-histname="mass_kin"
+cutText=""
+if cut=="betagammaCut":
+    histname="mpair_betagamma_2p75_"
+    cutText=rf"$\beta\gamma<2.75$"
+if cut=="alphaCut":
+    histname="mpair_jpsi_alpha_0p6_"
+    cutText = r"$\alpha_{J/\psi}<0.6$ GeV"
+if cut=="tCut":
+    histname="mpair_minus_t_1_"
+    cutText = r"-t<1 GeV"
+if cut=="tCut_lc":
+    histname="mpair_minus_t_lc_1_"
+    cutText = r"-t Light-Cone <1 GeV"
+if cut=="Egamma":
+    histname="mpair_Egamma_9p5_"
+    cutText = r"$E_{\gamma}<9.5$ GeV"
+
+if upper:
+    histname=histname+"upper"
+    cutText = cutText.replace("<",">")
+else:
+    histname = histname + "lower"
+
+# histname="mass_kin"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
-x_fit_min=2.6
+x_fit_min=2.9
 x_fit_max=3.3
-for A in ["D","He","C"]:
+# for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-# for A in ["D"]:
+for A in ["He"]:
     # for vers in ["v5", "v7", "v8"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
@@ -61,7 +83,7 @@ for A in ["D","He","C"]:
         # directoryname = ".preBmin_sigmamin_min_Emissmin.Jpsi_mass"
         # dataFiles = [f"data_tree_{A}.root"]
         #
-        dataFiles=[f"data_hist_{A}.root"]
+        dataFiles=[f"data_hist2_{A}.root"]
         x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                                       weights=[1],histname=histname,rebin=rebin)
         dx = x_data[1]-x_data[0]
@@ -84,7 +106,7 @@ for A in ["D","He","C"]:
         y = y_data[first:last]
         yerr = np.sqrt(yerr_data[first:last]**2+1)
 
-        p0 = [10**2,-6,20,3.1,0.04]
+        p0 = [10**3,-6,20,3.1,0.04]
         popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
         # print(popt)
 
@@ -152,7 +174,7 @@ for A in ["D","He","C"]:
         x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                                       weights=[1],histname=histname,rebin=rebin)
 
-        xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
+        xlin = np.linspace(x_fit_min,x_fit_max,num=1000)
         # plt.subplot(3,1,3)
         plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
         plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
@@ -161,23 +183,20 @@ for A in ["D","He","C"]:
         xmin, xmax, ymin, ymax=plt.axis()
         plt.ylim(ymin,ymax)
         plt.ylabel("Counts")
-        # plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
-        plt.xlabel(r"Measured m($e^+e^-$) [GeV]")
+        plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
+        # plt.xlabel(r"True m($e^+e^-$) [GeV]")
 
-        placeText("No Extra Tracks/Showers" +"\n"+vers, loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
+        placeText("No Extra Tracks/Showers" +" "+vers+"\n"+f" {cutText}", loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
         placeText(A, loc=2, yoffset=-30, fontsize=18)
 
-        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
-                  +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
+        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm$${N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm$${mu_err:.3f}$"
+                  +"\n"+rf"$\sigma={sigma:.3f}\pm$${sigma_err:.3f}$")
         # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
         placeText("Unbinned",loc=2)
         # </editor-fold>
 
-        # plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
-        plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/True/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
+        # plt.savefig(f"../../files/figs/peakFits/unbinned/cuts2/Mee_{A}_{cut}_{'upper' if upper else 'lower'}_noTrackShower_{vers}_bin{rebin}.pdf")
         plt.show()
-
-        print(popt[1])
 
 
 

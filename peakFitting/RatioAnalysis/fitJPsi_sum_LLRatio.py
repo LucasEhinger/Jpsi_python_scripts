@@ -22,6 +22,7 @@ import os
 plt.style.use("SRC_CT_presentation")
 
 A = "He+C"
+# A="He"
 vers="v8"
 rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
@@ -62,7 +63,8 @@ def integrated_gaus_bkd_exp(x,a0,a1,A,mu,sigma):
     return df
 # </editor-fold>
 
-# <editor-fold desc="Binned Exp Fit">
+
+# <editor-fold desc="Binned Exp">
 
 first = int((x_fit_min-x_data[0])/(x_data[-1]-x_data[0])*len(x_data))
 last = int((x_fit_max-x_data[0])/(x_data[-1]-x_data[0])*len(x_data))
@@ -86,7 +88,7 @@ sigma = popt[4]
 # sigma_err = np.sqrt(pcov[4][4])
 # </editor-fold>
 
-# <editor-fold desc="Unbinned Sig + Background Fit">
+# <editor-fold desc="Unbinned Fit">
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                               weights=[1,1],histname=histname,rebin=1)
 x_points=[]
@@ -126,12 +128,19 @@ def minus_log_likelihood_noSig(params):
     # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
 
 
+
+# initial_guess = [1/N,-4,40,3.08,0.04]
 initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
+# Fit no signal
+initial_guess_nosig = initial_guess[1:3]
+result_nosig = minimize(minus_log_likelihood_noSig, initial_guess_nosig, method = 'BFGS')#, options=dict(maxiter=10000000)
+popt_nosig=result_nosig.x
+
 
 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
 popt = result.x
-# pcov = result.hess_inv # BFGS hessian is unstable (known error)
+# pcov = result.hess_inv
 hessian_ = hessian(minus_log_likelihood)
 pcov = lin.inv(hessian_(popt))
 
@@ -140,60 +149,52 @@ N = popt[2]/(1+popt[0])
 mu = popt[3]
 sigma = abs(popt[4])
 
-
-N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
+N_err = (np.sqrt(pcov[2][2])/popt[2]+np.sqrt(pcov[0][0])/(1+popt[0]))*N
 mu_err = np.sqrt(pcov[3][3])
 sigma_err = np.sqrt(pcov[4][4])
-# </editor-fold>
+
+def getfom(popt):
+    a1, Aval = popt_nosig
+    tmp = w_fit * np.log((a1 * np.exp(a1 * x_fit) / (np.exp(x_fit_max * a1) - np.exp(x_fit_min * a1))))
+    nosig_sum = tmp.sum()
+
+    # a0, a1, Aval, mu, sigma = popt
+    # a0, Aval= 597763327.4453375, 597763.3284453375
+    # tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, mu, sigma))
+    # nosig_sum = tmp.sum()
+
+    a0, a1, Aval, mu, sigma = popt
+    tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, mu, sigma))
+    sig_sum = tmp.sum()
+
+    fom=2*(sig_sum-nosig_sum)
+    return fom
+def getZScore(fom,dof=3):
+    alpha = stats.chi2.sf(fom, dof)
+    z_score=stats.norm.ppf(1 - alpha / 2)
+    return z_score
+
+B_const= popt[2]*N
+N_vals = np.linspace(0.001,20,200)
+a0_vals = B_const/N_vals**2 - 1
+A_vals = B_const/N_vals
+lambda_arr=np.zeros(len(N_vals))
+for i, N_val in enumerate(N_vals):
+    popt_vary = [a0_vals[i],popt[1],A_vals[i],popt[3],popt[4]]
+    lambda_arr[i]=getfom(popt_vary)
+# 2*(minus_log_likelihood_noSig(popt_nosig)-minus_log_likelihood(popt_vary))
 
 
-# <editor-fold desc="No-signal fit">
-initial_guess_nosig = initial_guess[1:3]
-result_nosig = minimize(minus_log_likelihood_noSig, initial_guess_nosig, method = 'BFGS')#, options=dict(maxiter=10000000)
-popt_nosig=result_nosig.x
-# </editor-fold>
-
-
-# <editor-fold desc="Plot">
-x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin)
-
-xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
-plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
-plt.plot(xlin,(popt_nosig[1]*popt_nosig[0]* np.exp(popt_nosig[0]*xlin)/(np.exp(x_fit_max*popt_nosig[0])-np.exp(x_fit_min*popt_nosig[0])))*dx,color='g')
-plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
-
-plt.xlim(2.2,3.4)
-xmin, xmax, ymin, ymax=plt.axis()
-plt.ylim(ymin,1.25*ymax)
-plt.ylim(ymin,25)
-plt.ylabel("Counts")
-plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
-
-
-placeText(A+"\n"+r"$E_{\gamma}$<8.2",loc=2,yoffset=-40)
-placeText("No Extra Tracks/Showers"+"\n"+vers,loc=1,yoffset=-40)
-# </editor-fold>
-
-# <editor-fold desc="Likelihood Ratio">
-a1, Aval = popt_nosig
-tmp = w_fit * np.log((a1 * np.exp(a1 * x_fit) / (np.exp(x_fit_max * a1) - np.exp(x_fit_min * a1))))
-nosig_sum = tmp.sum()
-
-a0, a1, Aval, mu, sigma = popt
-tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, mu, sigma))
-sig_sum = tmp.sum()
-
-fom=2*(sig_sum-nosig_sum)
-
-alpha = stats.chi2.sf(fom, 3)
-z_score=stats.norm.ppf(1 - alpha / 2)
-print(f"Z Score: {z_score}")
-# </editor-fold>
-
-
-
-placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
-          "\n"+rf"$z={z_score:.2f}\sigma$")
-# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+plt.plot(N_vals,lambda_arr,label="FOM")
+plt.xlabel(r"$N_{J/\psi}$")
+plt.ylabel(r"$\lambda$")
+placeText(A,loc=2)
+placeText(r"$E_{\gamma}$<8.2",loc=1)
+plt.savefig(f"../../../files/figs/peakFits/subthreshold/LLratio_subt_noTrackShower_{vers}.pdf")
 plt.show()
+
+
+
+# </editor-fold>
+
+

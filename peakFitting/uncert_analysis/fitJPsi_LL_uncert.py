@@ -23,7 +23,7 @@ plt.style.use("SRC_CT_presentation")
 A = "C"
 vers="v8"
 rebin=30
-histname="mass_pair_Egamma_8p2_11"
+histname="mass_pair_pt_alpha"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
@@ -54,7 +54,7 @@ for A in ["D", "He", "C"]:
 
 
                     directoryname = f".preB_{preB}_sigma_{sigma_min}_{sigma_max}_Emiss_{E_miss}.Jpsi_mass"
-                    dataFiles = [f"data_hist_cutVary_{A}.root"]
+                    dataFiles = [f"data_hist_cutVary2_{A}.root"]
                     #
                     # dataFiles=[f"data_hist_{A}.root"]
                     x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
@@ -168,4 +168,4 @@ for A in ["D", "He", "C"]:
                     except:
                         df.loc[len(df.index)] = [preB, sigma_min, sigma_max, E_miss, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
 
-    df.to_csv(f"../../../files/figs/peakFits/uncert/5 params/Egamma_8p2_11/peak_params_{A}_data.csv",index=False)
+    df.to_csv(f"../../../files/figs/peakFits/uncert/5 params/pt_alpha/peak_params_{A}_data.csv",index=False)

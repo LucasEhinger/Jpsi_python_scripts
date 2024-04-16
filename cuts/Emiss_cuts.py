@@ -10,11 +10,14 @@ import os
 plt.style.use("SRC_CT_presentation")
 from pystyle.annotate import placeText
 
-filepath="/Users/lucasehinger/CLionProjects/untitled/Files/JPsi2/files/PoverE/m3_p2_sigma/preB_0/Emiss_100/"
-A="C"
-f = root2mpl.File(filepath+f"data_hist_{A}.root")
-histname = "missing Energy: stationary proton"
-rebin=10
+vers="v8"
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+A="He"
+directoryname=".EmissPlots.Before"
+histname = "Emiss"
+# f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
+f = root2mpl.File(filepath+f"hist2_cutflow_DSelector_4{A}_MF_helicity_mixed.root",dir=directoryname)
+rebin=4
 
 plt.figure()
 f.plotPoints(histname,rebin=rebin,ls='--',color='k',capsize=0,marker='.')
@@ -26,6 +29,6 @@ plt.xlim(-4,4)
 plt.xlabel(r"$E_{miss}$ [GeV]")
 plt.ylabel("Counts")
 # plt.title("Vertex z Cuts")
-placeText(A+"\nData",loc=1)
-plt.savefig("figures/"+f"Emiss_{A}.pdf", bbox_inches = 'tight')
+placeText(A+"\nSim",loc=1)
+plt.savefig(f"../../files/figs/cuts/Emiss_sim_{A}.pdf", bbox_inches = 'tight')
 plt.show()

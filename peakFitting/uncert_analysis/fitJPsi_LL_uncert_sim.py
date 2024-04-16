@@ -20,10 +20,10 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-A = "D"
+A = "C"
 vers="v8"
 rebin=30
-histname="mass_pair_Egamma_7_8p2"
+histname="mass_pair_pt_alpha"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
@@ -55,13 +55,13 @@ for preB in range_vals:
 
                 directoryname = f".preB_{preB}_sigma_{sigma_min}_{sigma_max}_Emiss_{E_miss}.Jpsi_mass"
                 simWeights = [0.242, 0.366, 0.069, 1.13, 0.29]  # Not including 2H (0.242 nb)
-                simFiles = ["hist_cutVary_DSelector_2H_MF_helicity_mixed.root",
-                            "hist_cutVary_DSelector_4He_MF_helicity_mixed.root", "hist_cutVary_DSelector_4He_SRC_helicity_mixed.root",
-                            "hist_cutVary_DSelector_12C_MF_helicity_mixed.root", "hist_cutVary_DSelector_12C_SRC_helicity_mixed.root"]
+                simFiles = ["hist_cutVary2_DSelector_2H_MF_helicity_mixed.root",
+                            "hist_cutVary2_DSelector_4He_MF_helicity_mixed.root", "hist_cutVary2_DSelector_4He_SRC_helicity_mixed.root",
+                            "hist_cutVary2_DSelector_12C_MF_helicity_mixed.root", "hist_cutVary2_DSelector_12C_SRC_helicity_mixed.root"]
                 match A:
                     case "D":
                         simWeights = [0.242]
-                        simFiles = ["hist_cutVary_DSelector_2H_MF_helicity_mixed.root"]
+                        simFiles = ["hist_cutVary2_DSelector_2H_MF_helicity_mixed.root"]
                     case "He":
                         simWeights = simWeights[1:3]
                         simFiles = simFiles[1:3]
@@ -145,4 +145,4 @@ for preB in range_vals:
 
 
 
-df.to_csv(f"../../../files/figs/peakFits/uncert/5 params/Egamma_7_8p2/peak_params_{A}_sim.csv",index=False)
+df.to_csv(f"../../../files/figs/peakFits/uncert/5 params/pt_alpha/peak_params_{A}_sim.csv",index=False)

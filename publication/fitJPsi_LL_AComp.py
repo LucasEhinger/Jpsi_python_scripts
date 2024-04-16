@@ -11,6 +11,7 @@ from scipy.stats import norm
 import scipy.integrate as integrate
 from autograd import grad, jacobian, hessian
 import numpy.linalg as lin
+import matplotlib as mpl
 
 from pystyle.annotate import placeText
 
@@ -18,6 +19,7 @@ from scipy.optimize import curve_fit, minimize, basinhopping
 import os
 
 plt.style.use("SRC_CT_presentation")
+mpl.rcParams['figure.autolayout'] = False
 
 cut ="ptAlphaCut"
 cut ="All"
@@ -33,15 +35,13 @@ if cut=="alphaCut":
 if cut=="ptAlphaCut":
     directoryname=".All_pt_alpha.Kin.Jpsi_mass"
 
-# histname="mass_pair"
-histname="mass_kin"
+histname="mass_pair"
+# histname="mass_kin"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
+plt.figure(figsize=(6, 8))
 for A in ["D","He","C"]:
-#     for vers in ["v5","v7"]:
-# for A in ["D"]:
-    # for vers in ["v5", "v7", "v8"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
         def getXY(infiles,weights,histname, rebin):
@@ -153,31 +153,39 @@ for A in ["D","He","C"]:
                                       weights=[1],histname=histname,rebin=rebin)
 
         xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
-        # plt.subplot(3,1,3)
+
+        plt.subplot(3, 1, 1 if A=="D" else 2 if A=="He" else 3)
+        plt.subplots_adjust(hspace=0)
+        if A!="C":
+            plt.tick_params(left=True, right=True, labelleft=True,
+                        labelbottom=False, bottom=True, top=True)
+        if A=="He":
+            plt.ylabel(r"Counts")
         plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
         plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 
-        plt.xlim(2.2,3.4)
+        plt.xlim(2.4,3.4)
         xmin, xmax, ymin, ymax=plt.axis()
-        plt.ylim(ymin,ymax)
-        plt.ylabel("Counts")
-        # plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
-        plt.xlabel(r"Measured m($e^+e^-$) [GeV]")
+        plt.ylim(ymin,ymax*0.6)
+        # plt.xlabel(r"True m($e^+e^-$) [GeV]")
 
-        placeText("No Extra Tracks/Showers" +"\n"+vers, loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
-        placeText(A, loc=2, yoffset=-30, fontsize=18)
+        # plt.ylabel("Counts")
+        # placeText("No Extra Tracks/Showers" +"\n"+vers, loc=1, yoffset=-40)  # +"\n"+"pT<0.3"
+        placeText(A, loc=2, fontsize=18)
 
-        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
-                  +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
+        placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$")
+
+        # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
+        #           +"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")
         # placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$")
-        placeText("Unbinned",loc=2)
+        # placeText("Unbinned",loc=2)
         # </editor-fold>
 
         # plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
-        plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/True/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
-        plt.show()
+        # plt.show()
 
-        print(popt[1])
-
-
+# plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
+plt.xlabel(r"$m_{proxy}$ [GeV]")
+plt.savefig(f"../../files/figs/publication/Mee_A_comp.pdf",bbox_inches='tight')
+plt.show()
 

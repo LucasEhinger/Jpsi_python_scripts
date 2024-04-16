@@ -10,11 +10,14 @@ import os
 plt.style.use("SRC_CT_presentation")
 from pystyle.annotate import placeText
 
-filepath= "/Users/lucasehinger/CLionProjects/untitled/Files/JPsi2/files/fiducialCuts/negWeights/"
 A="He"
-f = root2mpl.File(filepath+f"data_hist_{A}.root")
+vers="v8"
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+directoryname=".PreShowerPlots.Before"
 histname = "em_eprebcal_sinTheta"
-rebin=7
+f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
+
+rebin=20
 
 # plt.figure()
 # f.plotPoints(histname,rebin=rebin,ls='--',color='k',capsize=0,marker='.')
@@ -26,11 +29,17 @@ rebin=7
 # plt.ylabel("Counts")
 # # plt.title("Vertex z Cuts")
 # placeText(A+"\nData",loc=1)
-# plt.savefig("figures/"+f"preBcut_data_{A}.pdf", bbox_inches = 'tight')
+#
+# plt.savefig(f"../../files/figs/cuts/preBcut_data_{A}.pdf", bbox_inches = 'tight')
+#
 # plt.show()
 
-f2 = root2mpl.File(filepath+f"sim_hist_He_MF.root")
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+directoryname=".PreShowerPlots.Before"
 histname = "em_eprebcal_sinTheta"
+
+f2 = root2mpl.File(filepath+f"hist2_cutflow_DSelector_4He_MF_helicity_mixed.root",dir=directoryname)
+
 rebin=20
 
 plt.clf()
@@ -43,6 +52,6 @@ plt.xlim(0,0.25)
 plt.xlabel(r"$E_{preBCal}$ sin($\theta$) [GeV]")
 plt.ylabel("Counts")
 # plt.title("Vertex z Cuts")
-placeText(A+"\nSimulation",loc=1)
-plt.savefig("figures/"+f"preBcut_sim_{A}.pdf", bbox_inches = 'tight')
+placeText(A+"\nSim",loc=1)
+plt.savefig(f"../../files/figs/cuts/preBcut_sim_{A}.pdf", bbox_inches = 'tight')
 plt.show()

@@ -10,34 +10,39 @@ import os
 plt.style.use("SRC_CT_presentation")
 from pystyle.annotate import placeText
 
-filepath= "/Users/lucasehinger/CLionProjects/untitled/Files/JPsi2/files/defined/negWeights/"
 A="He"
-f = root2mpl.File(filepath+f"data_hist_{A}.root")
-# histname = "xyVertex"
-# rebinx=4
-# rebiny=4
-#
-#
-# plt.figure()
-# plt.gca().set_aspect('equal')
-# f.plotHeatmap(histname,rebinx=rebinx,rebiny=rebiny)
-# plt.xlim(-1.5,1.5)
-# plt.ylim(-1.5,1.5)
-# plt.xlabel("x [cm]")
-# plt.ylabel("y [cm]")
+vers="v8"
+filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
+directoryname=".VertexPlots.Before"
+# f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
+f = root2mpl.File(filepath+f"hist_cutflow_DSelector_4{A}_MF_helicity_mixed.root",dir=directoryname)
+
+histname = "xyVertex"
+rebinx=4
+rebiny=4
+
+
+plt.figure()
+plt.gca().set_aspect('equal')
+f.plotHeatmap(histname,rebinx=rebinx,rebiny=rebiny)
+plt.xlim(-1.5,1.5)
+plt.ylim(-1.5,1.5)
+plt.xlabel("x [cm]")
+plt.ylabel("y [cm]")
 # plt.title(A)
-#
-# tmpvar=np.linspace(0,2*3.15,100)
-# x=np.cos(tmpvar)
-# y=np.sin(tmpvar)
-# plt.plot(x,y,'r-',linewidth=2)
-# # placeText(A,loc=2,yoffset=-25)
-# plt.savefig("figures/"+f"xyCut_{A}.pdf", bbox_inches = 'tight')
-# plt.show()
+
+tmpvar=np.linspace(0,2*3.15,100)
+x=np.cos(tmpvar)
+y=np.sin(tmpvar)
+plt.plot(x,y,'r-',linewidth=2)
+# placeText(A,loc=2,yoffset=-25)
+plt.title(A+" Sim")
+plt.savefig(f"../../files/figs/cuts/xyCut_sim_{A}.pdf", bbox_inches = 'tight')
+plt.show()
 
 
 
-rebin=20
+rebin=100
 plt.clf()
 plt.figure()
 f.plotPoints("Z-location",rebin=rebin,ls='--',color='k',capsize=0,marker='.')
@@ -48,7 +53,9 @@ plt.xlim(40,90)
 plt.ylim(ymin,ymax)
 plt.xlabel("z [cm]")
 plt.ylabel("Counts")
-plt.title(A)
+# plt.title(A)
 # placeText(A,loc=2)
-plt.savefig("figures/"+f"zCut_{A}.pdf", bbox_inches = 'tight')
+plt.title(A+" Sim")
+plt.savefig(f"../../files/figs/cuts/zCut_sim_{A}.pdf", bbox_inches = 'tight')
+
 plt.show()
