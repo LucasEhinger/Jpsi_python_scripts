@@ -45,7 +45,7 @@ filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/
 
 # for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["C"]:
+for A in ["He","C"]:
     for vers in ["v8"]:
         plt.figure(figsize=(6, 10))
         # <editor-fold desc="Sub-Threshold">

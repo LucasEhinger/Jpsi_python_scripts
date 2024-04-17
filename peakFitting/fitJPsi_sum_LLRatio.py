@@ -21,7 +21,7 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-A = "He+C"
+A = "C"
 vers="v8"
 rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
@@ -46,9 +46,10 @@ def getXY(infiles,weights,histname, rebin):
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/PoverE/m3_p2_sigma/noTracks/preB_03/Emiss_1/EgammaCuts/8p2_lower/"
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 dataFiles=[f"data_hist_{A}.root"]
-dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
+# dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
+weight_arr=[1]
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin)
+                              weights=weight_arr,histname=histname,rebin=rebin)
 dx = x_data[1]-x_data[0]
 
 def gaus_bdk_exp(x,a0,a1,A,mu, sigma):
@@ -72,14 +73,14 @@ yerr = np.sqrt(yerr_data[first:last]**2+1)
 
 # p0 = [10**2,-6,10,3.0,0.04]
 p0 = [5*10**3,-6.3,10,3.05,0.03]
-popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
-# print(popt)
-
-a0 = popt[0]
-a1 = popt[1]
-N = popt[2]
-mu = popt[3]
-sigma = popt[4]
+# popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
+# # print(popt)
+#
+# a0 = popt[0]
+# a1 = popt[1]
+# N = popt[2]
+# mu = popt[3]
+# sigma = popt[4]
 
 # N_err = np.sqrt(pcov[2][2])
 # mu_err = np.sqrt(pcov[3][3])
@@ -88,7 +89,7 @@ sigma = popt[4]
 
 # <editor-fold desc="Unbinned Sig + Background Fit">
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=1)
+                              weights=weight_arr,histname=histname,rebin=1)
 x_points=[]
 w_points=[]
 x_fit=[]
@@ -126,7 +127,8 @@ def minus_log_likelihood_noSig(params):
     # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
 
 
-initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
+# initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
+initial_guess =[1.91624514, -18.03548506,  22.2143773,   3.00935535, 0.02938895]
 
 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
@@ -156,7 +158,7 @@ popt_nosig=result_nosig.x
 
 # <editor-fold desc="Plot">
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
-                              weights=[1,1],histname=histname,rebin=rebin)
+                              weights=weight_arr,histname=histname,rebin=rebin)
 
 xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
 plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
@@ -166,7 +168,7 @@ plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 plt.xlim(2.2,3.4)
 xmin, xmax, ymin, ymax=plt.axis()
 plt.ylim(ymin,1.25*ymax)
-plt.ylim(ymin,25)
+plt.ylim(ymin,20)
 plt.ylabel("Counts")
 plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 
@@ -195,5 +197,5 @@ print(f"Z Score: {z_score}")
 
 placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
           "\n"+rf"$z={z_score:.2f}\sigma$")
-# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
 plt.show()
