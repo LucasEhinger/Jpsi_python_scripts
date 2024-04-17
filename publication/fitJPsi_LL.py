@@ -255,7 +255,7 @@ placeText(r"$E_{\gamma}<8.2$ GeV",loc=1,xoffset=-5,yoffset=0,fontsize=12)
 # </editor-fold>
 # </editor-fold>
 
-plt.savefig(f"../../files/figs/publication/Mee_All.pdf")
+# plt.savefig(f"../../files/figs/publication/Mee_All.pdf")
 plt.show()
 
 

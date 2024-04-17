@@ -21,7 +21,7 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-A = "C"
+A = "He+C"
 vers="v8"
 rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
@@ -43,11 +43,10 @@ def getXY(infiles,weights,histname, rebin):
         yerr = np.sqrt(yerr**2 +(h.yerr*weights[i])**2)
     return x,y,yerr
 
-filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/PoverE/m3_p2_sigma/noTracks/preB_03/Emiss_1/EgammaCuts/8p2_lower/"
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
-dataFiles=[f"data_hist_{A}.root"]
-# dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
-weight_arr=[1]
+# dataFiles=[f"data_hist_{A}.root"]
+dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
+weight_arr=[1,1]
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                               weights=weight_arr,histname=histname,rebin=rebin)
 dx = x_data[1]-x_data[0]
@@ -73,18 +72,18 @@ yerr = np.sqrt(yerr_data[first:last]**2+1)
 
 # p0 = [10**2,-6,10,3.0,0.04]
 p0 = [5*10**3,-6.3,10,3.05,0.03]
-# popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
-# # print(popt)
-#
-# a0 = popt[0]
-# a1 = popt[1]
-# N = popt[2]
-# mu = popt[3]
-# sigma = popt[4]
+popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
+# print(popt)
 
-# N_err = np.sqrt(pcov[2][2])
-# mu_err = np.sqrt(pcov[3][3])
-# sigma_err = np.sqrt(pcov[4][4])
+a0 = popt[0]
+a1 = popt[1]
+N = popt[2]
+mu = popt[3]
+sigma = popt[4]
+
+N_err = np.sqrt(pcov[2][2])
+mu_err = np.sqrt(pcov[3][3])
+sigma_err = np.sqrt(pcov[4][4])
 # </editor-fold>
 
 # <editor-fold desc="Unbinned Sig + Background Fit">
@@ -127,8 +126,8 @@ def minus_log_likelihood_noSig(params):
     # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
 
 
-# initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
-initial_guess =[1.91624514, -18.03548506,  22.2143773,   3.00935535, 0.02938895]
+initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
+# initial_guess =[1.91624514, -18.03548506,  22.2143773,   3.00935535, 0.02938895]
 
 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
@@ -197,5 +196,5 @@ print(f"Z Score: {z_score}")
 
 placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
           "\n"+rf"$z={z_score:.2f}\sigma$")
-plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
 plt.show()
