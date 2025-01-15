@@ -13,7 +13,7 @@ import sys
 
 plt.style.use("SRC_CT_presentation")
 
-A="D"
+A="He"
 vers="v8"
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 directoryname=".PoverEPlots"
@@ -67,16 +67,18 @@ for i in range(len(theta_bins) - 1):
     # plt.errorbar(theta_bins[:-1],mu,yerr=mu_err,fmt='o',label=r"$\mu$")
 
 theta_avg = (np.array(theta_bins[:-1])+np.array(theta_bins[1:]))/2
+sigma=sigma*100
+
 plt.errorbar(theta_avg,sigma,yerr=sigma_err,fmt='o',label=r"$\mu$",color='black')
-plt.plot([11,11],[0,0.1],label="11",linestyle='--',color='black')
+plt.plot([11,11],[0,11],label="11",linestyle='--',color='black')
 plt.ylim(min(sigma)*0.9,max(sigma)*1.1)
 plt.xlabel(r"$\theta$ [Deg]")
-plt.ylabel(r"$p/E$" + r" $\sigma$")
+plt.ylabel(r"$p/E$ Resolution [%]")
 # placeText(rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"+"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")#+"\n"+r"")
 # # # placeText(A+"\n"+f"{cut}",loc=2)
 # # # placeText(A+"\n"+f"|E/p-1|<{float(cut)/10} events",loc=2)
 # placeText(A+" Sim"+"\n"+r"$-3\sigma$ $<$ $p/E_{FCAL}-\langle p/E_{FCAL} \rangle$ $<$ $2\sigma$" ,loc=2)
 # "\n"+ "Iteration " +str(iter)+
 
-# plt.savefig(f"../../../files/figs/cuts/{A}_bcal_sig_bkd_fit_sim.pdf", bbox_inches = 'tight')
+plt.savefig(f"../../../files/figs/cuts/{A}_pEResolution_Theta_sim.pdf", bbox_inches = 'tight')
 plt.show()

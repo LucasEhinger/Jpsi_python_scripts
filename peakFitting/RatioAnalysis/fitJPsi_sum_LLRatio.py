@@ -30,6 +30,8 @@ histname="mass_pair"
 x_fit_min=2.6
 x_fit_max=3.3
 
+x_fit_min_subt=2.55
+x_fit_max_subt=3.3
 
 # <editor-fold desc="Get Data">
 def getXY(infiles,weights,histname, rebin):
@@ -175,13 +177,23 @@ def getZScore(fom,dof=3):
     return z_score
 
 B_const= popt[2]*N
-N_vals = np.linspace(0.001,20,200)
+N_vals = np.linspace(0.001,15,20)
 a0_vals = B_const/N_vals**2 - 1
 A_vals = B_const/N_vals
 lambda_arr=np.zeros(len(N_vals))
+initial_guess=popt[1:]
 for i, N_val in enumerate(N_vals):
-    popt_vary = [a0_vals[i],popt[1],A_vals[i],popt[3],popt[4]]
-    lambda_arr[i]=getfom(popt_vary)
+    def minus_log_likelihood_fixedN(params):
+        a1, A, mu, sigma = params
+        A = abs(A)
+        tmp = w_fit * np.log(A * gaus_exp_bdk_pdf(x_fit, a0_vals[i], a1, mu, sigma))
+        return A - tmp.sum()
+        # return -(np.sum(np.log((S*gaus(N,mu,sigma)+B*np.ones(len(N))))))+S+B # Here "A" is the total integral of the distribution funciton, whatever that may be
+        # return -np.sum(np.log(gaus(m,A,mu,sigma))) + A
+        # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
+    result = minimize(minus_log_likelihood_fixedN, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
+    popt_vary = result.x
+    lambda_arr[i]=getfom([a0_vals[i],*popt_vary])
 # 2*(minus_log_likelihood_noSig(popt_nosig)-minus_log_likelihood(popt_vary))
 
 

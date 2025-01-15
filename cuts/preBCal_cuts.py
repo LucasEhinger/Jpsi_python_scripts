@@ -19,20 +19,20 @@ f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
 
 rebin=20
 
-# plt.figure()
-# f.plotPoints(histname,rebin=rebin,ls='--',color='k',capsize=0,marker='.')
-# xmin, xmax, ymin, ymax = plt.axis()
-# plt.plot([0.03,0.03],[ymin,ymax],'r-')
-# plt.ylim(ymin,ymax)
-# plt.xlim(0,0.25)
-# plt.xlabel(r"$E_{preBCal}$ sin($\theta$) [GeV]")
-# plt.ylabel("Counts")
-# # plt.title("Vertex z Cuts")
-# placeText(A+"\nData",loc=1)
-#
-# plt.savefig(f"../../files/figs/cuts/preBcut_data_{A}.pdf", bbox_inches = 'tight')
-#
-# plt.show()
+plt.figure()
+f.plotPoints(histname,rebin=rebin,ls='--',color='k',capsize=0,marker='.')
+xmin, xmax, ymin, ymax = plt.axis()
+plt.plot([0.03,0.03],[ymin,ymax],'r-')
+plt.ylim(ymin,ymax)
+plt.xlim(0,0.25)
+plt.xlabel(r"$E_{preBCal}$ sin($\theta$) [GeV]")
+plt.ylabel("Counts")
+# plt.title("Vertex z Cuts")
+placeText(A+"\nData",loc=1)
+
+plt.savefig(f"../../files/figs/cuts/preBcut_data_{A}.pdf", bbox_inches = 'tight')
+
+plt.show()
 
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 directoryname=".PreShowerPlots.Before"

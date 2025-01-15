@@ -158,6 +158,6 @@ placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{
 # placeText("Unbinned Exp",loc=2)
 
 
-# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_subt_noTrackShower_{vers}_bin{rebin}_allStats.pdf")
 
 plt.show()

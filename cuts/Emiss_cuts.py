@@ -16,7 +16,7 @@ A="He"
 directoryname=".EmissPlots.Before"
 histname = "Emiss"
 # f = root2mpl.File(filepath+f"data_hist2_cutflow_{A}.root",dir=directoryname)
-f = root2mpl.File(filepath+f"hist2_cutflow_DSelector_4{A}_MF_helicity_mixed.root",dir=directoryname)
+f = root2mpl.File(filepath+f"hist_cutflow_DSelector_4{A}_MF_helicity_mixed_2.root",dir=directoryname)
 rebin=4
 
 plt.figure()

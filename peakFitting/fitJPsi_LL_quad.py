@@ -39,9 +39,9 @@ histname="mass_pair"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
-for A in ["D","He","C"]:
+# for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-# for A in ["D"]:
+for A in ["He"]:
     # for vers in ["v5", "v7", "v8"]:
     for vers in ["v8"]:
         # <editor-fold desc="Get Data">
@@ -67,13 +67,13 @@ for A in ["D","He","C"]:
                                       weights=[1],histname=histname,rebin=rebin)
         dx = x_data[1]-x_data[0]
 
-        def gaus_bdk_exp(x,a0,a1,A,mu, sigma):
-            return (a0*10**6*np.exp(x*a1) + A * norm.pdf(x,loc=mu,scale=sigma))
+        def gaus_bdk_quad(x,a0,a1,a2,A,mu, sigma):
+            return (a0 + a1*x + a2*x**2 + A * norm.pdf(x,loc=mu,scale=sigma))
 
-        def integrated_gaus_bkd_exp(x,a0,a1,A,mu,sigma):
+        def integrated_gaus_bkd_quad(x,a0,a1,a2,A,mu,sigma):
             df=[]
             for xval in x:
-                df_val = integrate.quad(gaus_bdk_exp, xval - dx / 2, xval + dx / 2, args=(a0, a1, A, mu, sigma),epsrel=0.01)
+                df_val = integrate.quad(gaus_bdk_quad, xval - dx / 2, xval + dx / 2, args=(a0, a1, a2, A, mu, sigma),epsrel=0.01)
                 df.append(df_val[0])
             return df
         # </editor-fold>
@@ -85,19 +85,20 @@ for A in ["D","He","C"]:
         y = y_data[first:last]
         yerr = np.sqrt(yerr_data[first:last]**2+1)
 
-        p0 = [10**2,-6,20,3.1,0.04]
-        popt, pcov = curve_fit(integrated_gaus_bkd_exp,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
+        p0 = [10**2,-10,5,40,3.1,0.04]
+        popt, pcov = curve_fit(integrated_gaus_bkd_quad,x,y,sigma=yerr,absolute_sigma=True,p0 = p0)
         # print(popt)
 
         a0 = popt[0]
         a1 = popt[1]
-        N = popt[2]
-        mu = popt[3]
-        sigma = popt[4]
+        a3 = popt[2]
+        N = popt[3]
+        mu = popt[4]
+        sigma = popt[5]
 
-        N_err = np.sqrt(pcov[2][2])
-        mu_err = np.sqrt(pcov[3][3])
-        sigma_err = np.sqrt(pcov[4][4])
+        N_err = np.sqrt(pcov[3][3])
+        mu_err = np.sqrt(pcov[4][4])
+        sigma_err = np.sqrt(pcov[5][5])
         # </editor-fold>
 
         # <editor-fold desc="Unbinned Fit">
@@ -116,23 +117,36 @@ for A in ["D","He","C"]:
                     w_fit = np.append(w_fit, yval)
 
         # Gaussian fit function
-        def gaus_exp_bdk_pdf(x,a0,a1,mu,sigma):
-            pdf_val=(1 / np.sqrt(2 * np.pi * sigma ** 2) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) + a0 *a1* np.exp(a1*x)/(np.exp(x_fit_max*a1)-np.exp(x_fit_min*a1))) / (1 + a0)
+        def gaus_quad_bdk_pdf(x,a0,a1,a2,mu,sigma):
+            pdf_val=(1 / np.sqrt(2 * np.pi * sigma ** 2) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) + a0*(1+a1*x+a2*x**2)/((x_fit_max-x_fit_min)+a1*(x_fit_max**2-x_fit_min**2)/2+a2*(x_fit_max**3-x_fit_min**3)/3)) / (1 + a0)
             return pdf_val
 
         def minus_log_likelihood(params):
-            a0,a1,A,mu,sigma= params
-            A=abs(A)
-            a0=abs(a0)
-            tmp=w_fit*np.log(A*gaus_exp_bdk_pdf(x_fit,a0,a1,mu,sigma))
-            return A-tmp.sum()
+            norm_val, a0,a1,a2, mu,sigma= params
+            norm_val=abs(norm_val)
+            likelihood_vals=gaus_quad_bdk_pdf(x_fit,a0,a1,a2,mu,sigma)
+            tmp=w_fit*np.log(abs(norm_val*likelihood_vals))*np.sign(likelihood_vals)
+            return norm_val-tmp.sum()
             # return -(np.sum(np.log((S*gaus(N,mu,sigma)+B*np.ones(len(N))))))+S+B # Here "A" is the total integral of the distribution funciton, whatever that may be
             #return -np.sum(np.log(gaus(m,A,mu,sigma))) + A
             # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
 
 
+        poly_norm=(x_fit_max - x_fit_min) + popt[1] * (x_fit_max ** 2 - x_fit_min ** 2) / 2 + popt[2] * (x_fit_max ** 3 - x_fit_min ** 3) / 3
+        initial_guess=[0,0,0,0,0,0]
+        initial_guess[0]=0.0001 #norm value
+        initial_guess[1]=1/(500/poly_norm/popt[0]-1) #a0
+        initial_guess[2] = popt[1] * poly_norm / popt[0] * (1 + initial_guess[1]) #a1
+        initial_guess[3] = popt[2] * poly_norm / popt[0] * (1 + initial_guess[1]) #a2
+        # initial_guess[4]=popt[3]*(1+initial_guess[1])
+        initial_guess[4]=popt[4]
+        initial_guess[5]=popt[5]
+        initial_guess=[300, 3, -0.25, 0, popt[4], popt[5]]
+        initial_guess=[ 1.61358485e+02,  1.65556115e+00, -6.35625515e-01,  1.01115462e-01, 3.04147623e+00,  4.01545206e-02]
+        # initial_guess=[160,1.5,-0.5,0.1,3.06,popt[5]]
+        # initial_guess = [popt[3]*(1+popt[0]),popt[0]/(1-popt[0])*poly_norm,popt[1]/popt[0]*poly_norm,popt[2]/popt[0]*poly_norm,popt[4],popt[5]]
         # initial_guess = [1/N,-4,40,3.08,0.04]
-        initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,3.1,0.04]
+        # initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],20,3.1,0.04]
         # initial_guess=[ 9.68114430e-01, -5.06355476e+00,  9.40306056e+01,  3.04613395e+00, 5.00839801e-02]
         result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
@@ -142,20 +156,20 @@ for A in ["D","He","C"]:
         pcov = lin.inv(hessian_(popt))
 
 
-        N = popt[2]/(1+popt[0])
-        mu = popt[3]
-        sigma = abs(popt[4])
+        N = popt[0]/(1+popt[1])
+        mu = popt[4]
+        sigma = abs(popt[5])
 
-        N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
-        mu_err = np.sqrt(pcov[3][3])
-        sigma_err = np.sqrt(pcov[4][4])
+        N_err = np.sqrt(pcov[0][0]/(1+popt[1])**2+pcov[1][1]*N**2/(1+popt[1])**2)
+        mu_err = np.sqrt(pcov[4][4])
+        sigma_err = np.sqrt(pcov[5][5])
 
         x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                                       weights=[1],histname=histname,rebin=rebin)
 
         xlin = np.linspace(x_fit[0],x_fit[-1],num=1000)
         # plt.subplot(3,1,3)
-        plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r')
+        plt.plot(xlin,(popt[0]*gaus_quad_bdk_pdf(xlin,*popt[1:]))*dx,color='r')
         plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 
         plt.xlim(2.2,3.4)
@@ -175,7 +189,7 @@ for A in ["D","He","C"]:
         # </editor-fold>
 
         # plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
-        # plt.savefig(f"../../files/figs/peakFits/unbinned/{cut}/True/Mee_{A}_noTrackShower_{vers}_bin{rebin}.pdf")
+        plt.savefig(f"../../files/figs/peakFits/quad/{cut}/Mee_{A}_quad_noTrackShower_{vers}_bin{rebin}.pdf")
         plt.show()
 
         print(popt[1])

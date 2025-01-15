@@ -21,7 +21,7 @@ import os
 
 plt.style.use("SRC_CT_presentation")
 
-A = "He+C"
+A = "D+He+C"
 vers="v8"
 rebin=30
 directoryname=".SubThresh.Kin.Jpsi_mass"
@@ -45,8 +45,8 @@ def getXY(infiles,weights,histname, rebin):
 
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 # dataFiles=[f"data_hist_{A}.root"]
-dataFiles = ["data_hist_He.root" , "data_hist_C.root"]
-weight_arr=[1,1]
+dataFiles = ["data_hist_D.root","data_hist_He.root" , "data_hist_C.root"]
+weight_arr=np.ones(len(dataFiles))
 x_data,y_data,yerr_data=getXY(infiles=[filepath+tree for tree in dataFiles],
                               weights=weight_arr,histname=histname,rebin=rebin)
 dx = x_data[1]-x_data[0]
@@ -128,6 +128,7 @@ def minus_log_likelihood_noSig(params):
 
 initial_guess = [popt[0]/(popt[2]*popt[1])*(np.exp(popt[1]*x_fit_max)-np.exp(popt[1]*x_fit_min)),popt[1],5,3.05,0.04]
 # initial_guess =[1.91624514, -18.03548506,  22.2143773,   3.00935535, 0.02938895]
+# initial_guess =[1.91624514, -4.03548506,  22.2143773,   3.00935535, 0.02938895]
 
 result = minimize(minus_log_likelihood, initial_guess, method = 'BFGS')#, options=dict(maxiter=10000000)
 
@@ -164,22 +165,21 @@ plt.plot(xlin,(popt[2]*gaus_exp_bdk_pdf(xlin,*popt[0:2],*popt[3:5]))*dx,color='r
 plt.plot(xlin,(popt_nosig[1]*popt_nosig[0]* np.exp(popt_nosig[0]*xlin)/(np.exp(x_fit_max*popt_nosig[0])-np.exp(x_fit_min*popt_nosig[0])))*dx,color='g')
 plt.errorbar(x_data,y_data,yerr=yerr_data,fmt='.k',capsize=0)
 
-plt.xlim(2.2,3.4)
+plt.xlim(2.4,3.4)
 xmin, xmax, ymin, ymax=plt.axis()
 plt.ylim(ymin,1.25*ymax)
 plt.ylim(ymin,20)
-plt.ylabel("Counts")
+plt.ylabel("Counts / " + rf"{rebin:.0f} MeV")
 plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 
-
-placeText(A+"\n"+r"$E_{\gamma}$<8.2",loc=2,yoffset=-40)
-placeText("No Extra Tracks/Showers"+"\n"+vers,loc=1,yoffset=-40)
+# placeText(A+"\n"+r"$E_{\gamma}$<8.2",loc=2,yoffset=-40)
+# placeText("No Extra Tracks/Showers"+"\n"+vers,loc=1,yoffset=-40)
 # </editor-fold>
 
 # <editor-fold desc="Likelihood Ratio">
-a1, Aval = popt_nosig
-tmp = w_fit * np.log((a1 * np.exp(a1 * x_fit) / (np.exp(x_fit_max * a1) - np.exp(x_fit_min * a1))))
-nosig_sum = tmp.sum()
+a1_bkd, Aval_bkd = popt_nosig
+tmp_bdk = w_fit * np.log((a1_bkd * np.exp(a1_bkd * x_fit) / (np.exp(x_fit_max * a1_bkd) - np.exp(x_fit_min * a1_bkd))))
+nosig_sum = tmp_bdk.sum()
 
 a0, a1, Aval, mu, sigma = popt
 tmp = w_fit * np.log(gaus_exp_bdk_pdf(x_fit, a0, a1, mu, sigma))
@@ -187,14 +187,23 @@ sig_sum = tmp.sum()
 
 fom=2*(sig_sum-nosig_sum)
 
+# alpha=stats.norm.sf(np.sqrt(fom))
+# z_score=stats.norm.ppf(1 - alpha)
 alpha = stats.chi2.sf(fom, 3)
-z_score=stats.norm.ppf(1 - alpha / 2)
+z_score=stats.norm.ppf(1 - alpha/2)
 print(f"Z Score: {z_score}")
 # </editor-fold>
 
 
 
-placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
+# placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
+#           "\n"+rf"$z={z_score:.2f}\sigma$")
+# placeText(r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+"\n"+rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"
+#           +"\n"+rf"$\sigma={abs(sigma):.3f}\pm{sigma_err:.3f}$" +
+#           "\n"+rf"$z={z_score:.2f}\sigma$")
+placeText(r"$E_{\gamma}$ < 8.2 GeV"+"\n"
+          +r"$N_{J/\psi}$"+rf"$={N:.1f}\pm{N_err:.1f}$"+
           "\n"+rf"$z={z_score:.2f}\sigma$")
-# plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}_bin{rebin}.pdf")
+
+plt.savefig(f"../../files/figs/peakFits/subthreshold/Mee_{A}_ratio_subt_noTrackShower_{vers}.pdf")
 plt.show()

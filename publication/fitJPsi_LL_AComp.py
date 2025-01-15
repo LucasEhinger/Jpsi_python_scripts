@@ -145,7 +145,8 @@ for A in ["D","He","C"]:
         mu = popt[3]
         sigma = abs(popt[4])
 
-        N_err = np.sqrt(pcov[2][2] / (1 + popt[0]) ** 2 + pcov[0][0] * N ** 2 / (1 + popt[0]) ** 2)
+
+        N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
         mu_err = np.sqrt(pcov[3][3])
         sigma_err = np.sqrt(pcov[4][4])
 
@@ -185,7 +186,6 @@ for A in ["D","He","C"]:
         # plt.show()
 
 # plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
-plt.xlabel(r"$m_{proxy}$ [GeV]")
+plt.xlabel(r"Light-cone m($e^+e^-$) [GeV]")
 plt.savefig(f"../../files/figs/publication/Mee_A_comp.pdf",bbox_inches='tight')
 plt.show()
-

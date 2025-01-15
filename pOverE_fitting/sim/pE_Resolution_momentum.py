@@ -13,7 +13,7 @@ import sys
 
 plt.style.use("SRC_CT_presentation")
 
-A="D"
+A="He"
 vers="v8"
 filepath=f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/filtered/noTrackShower/"
 directoryname=".PoverEPlots"
@@ -67,6 +67,8 @@ for i in range(len(p_bins) - 1):
 
     # plt.errorbar(theta_bins[:-1],mu,yerr=mu_err,fmt='o',label=r"$\mu$")
 
+sigma=sigma*100
+sigma_err=sigma_err*100
 p_avg = (np.array(p_bins[:-1])+np.array(p_bins[1:]))/2
 plt.errorbar(p_avg,sigma,yerr=sigma_err,fmt='o',label=r"FCal")
 
@@ -102,11 +104,13 @@ for i in range(len(p_bins) - 1):
 
     # plt.errorbar(theta_bins[:-1],mu,yerr=mu_err,fmt='o',label=r"$\mu$")
 
+sigma=sigma*100
+sigma_err=sigma_err*100
 p_avg = (np.array(p_bins[:-1])+np.array(p_bins[1:]))/2+0.1
 plt.errorbar(p_avg,sigma,yerr=sigma_err,fmt='o',label=r"BCal")
 # plt.ylim(0.5,max(sigma)*1.1)
-plt.xlabel(r"$p$ [GeV]")
-plt.ylabel(r"$p/E$" + r" $\sigma$")
+plt.xlabel(r"$p$ [GeV/c]")
+plt.ylabel(r"$p/E$ Resolution [%]")
 plt.legend()
 # placeText(rf"$\mu={mu:.3f}\pm{mu_err:.3f}$"+"\n"+rf"$\sigma={sigma:.3f}\pm{sigma_err:.3f}$")#+"\n"+r"")
 # # # placeText(A+"\n"+f"{cut}",loc=2)
@@ -115,4 +119,5 @@ plt.legend()
 # "\n"+ "Iteration " +str(iter)+
 
 # plt.savefig(f"../../../files/figs/cuts/{A}_bcal_sig_bkd_fit_sim.pdf", bbox_inches = 'tight')
+plt.savefig(f"../../../files/figs/cuts/{A}_pEResolution_Momentum_sim.pdf", bbox_inches = 'tight')
 plt.show()

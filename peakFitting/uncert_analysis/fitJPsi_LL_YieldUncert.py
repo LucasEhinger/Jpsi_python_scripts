@@ -22,8 +22,9 @@ plt.style.use("SRC_CT_presentation")
 
 A = "C"
 vers="v8"
-rebin=30
+rebin=50
 histname="mass_pair_Egamma_7_8p2"
+histname="mass_pair"
 # mass_pair_fine, mass_pair_fine_pt0p3, mass_pair_fine_alpha1p2, mass_pair_fine_alpha1p2_pt0p3
 x_fit_min=2.6
 x_fit_max=3.3
@@ -42,7 +43,7 @@ def getXY(infiles, weights, histname, rebin,directoryname):
         y += h.y * weights[i]
         yerr = np.sqrt(yerr ** 2 + (h.yerr * weights[i]) ** 2)
     return x, y, yerr
-for A in ["C"]:
+for A in ["He"]:
     filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/cutVary/noTrackShower/loose_medium/"
     if A=="D":
         x_ROI_min = 3.0
@@ -290,9 +291,39 @@ for A in ["C"]:
     dN3 = np.sqrt(ROI_sum_err ** 2 + bkd_sum_err ** 2)
     # </editor-fold>
 
+    def gaus_quad_bdk_pdf(x, a0, a1, a2, mu, sigma):
+        pdf_val = (1 / np.sqrt(2 * np.pi * sigma ** 2) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2)) + a0 * (
+                    1 + a1 * x + a2 * x ** 2) / (
+                               (x_fit_max - x_fit_min) + a1 * (x_fit_max ** 2 - x_fit_min ** 2) / 2 + a2 * (
+                                   x_fit_max ** 3 - x_fit_min ** 3) / 3)) / (1 + a0)
+        return pdf_val
+
+
+    def minus_log_likelihood(params):
+        norm_val, a0, a1, a2, mu, sigma = params
+        norm_val = abs(norm_val)
+        likelihood_vals = gaus_quad_bdk_pdf(x_fit, a0, a1, a2, mu, sigma)
+        tmp = w_fit * np.log(abs(norm_val * likelihood_vals)) * np.sign(likelihood_vals)
+        return norm_val - tmp.sum()
+        # return -(np.sum(np.log((S*gaus(N,mu,sigma)+B*np.ones(len(N))))))+S+B # Here "A" is the total integral of the distribution funciton, whatever that may be
+        # return -np.sum(np.log(gaus(m,A,mu,sigma))) + A
+        # return -(np.sum(np.log(gaus(m,A,mu,sigma))) - 0.2*np.sum(np.log(gaus(n,A,mu,sigma)))) + A
+
+    initial_guess = [160,1.5,-0.6,0.1,3.04,0.05]
+    initial_guess = [20,  2, -0.6,  0.1,  3.05, 0.04]
+    initial_guess=[ 1.61358485e+02,  1.65556115e+00, -6.35625515e-01,  1.01115462e-01, 3.04147623e+00,  4.01545206e-02]
+    # initial_guess = [300, 3, -0.25, 0,3.05,0.05]
+    result = minimize(minus_log_likelihood, initial_guess, method='BFGS')  # , options=dict(maxiter=10000000)
+    popt = result.x
+    N4 = popt[0] / (1 + popt[1])
+    mu4 = popt[4]
+    sigma4 = abs(popt[5])
+
 
     print(N1)
     print(N2)
     print(N3)
-    print(np.std([N1,N2,N3]))
+    print(N4)
+    print('\n')
+    print(np.std([N1,N2,N3,N4]))
 

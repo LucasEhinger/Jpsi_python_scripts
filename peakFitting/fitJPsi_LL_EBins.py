@@ -45,7 +45,7 @@ filepath = f"/Users/lucasehinger/CLionProjects/untitled/Files/ifarmHists/{vers}/
 
 # for A in ["D","He","C"]:
 #     for vers in ["v5","v7"]:
-for A in ["He","C"]:
+for A in ["D"]:
     for vers in ["v8"]:
         plt.figure(figsize=(6, 10))
         # <editor-fold desc="Sub-Threshold">
@@ -276,7 +276,7 @@ for A in ["He","C"]:
         mu = popt[3]
         sigma = abs(popt[4])
 
-        N_err = (np.sqrt(pcov[2][2]) / popt[2] + np.sqrt(pcov[0][0]) / (1 + popt[0])) * N
+        N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
         mu_err = np.sqrt(pcov[3][3])
         sigma_err = np.sqrt(pcov[4][4])
 
@@ -404,7 +404,7 @@ for A in ["He","C"]:
         mu = popt[3]
         sigma = abs(popt[4])
 
-        N_err = (np.sqrt(pcov[2][2]) / popt[2] + np.sqrt(pcov[0][0]) / (1 + popt[0])) * N
+        N_err = np.sqrt(pcov[2][2]/(1+popt[0])**2+pcov[0][0]*N**2/(1+popt[0])**2)
         mu_err = np.sqrt(pcov[3][3])
         sigma_err = np.sqrt(pcov[4][4])
 
